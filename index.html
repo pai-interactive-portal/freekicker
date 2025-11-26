@@ -1,0 +1,1804 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Freekick Challenge</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            min-height: 100%;
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .game-title {
+            font-size: 42px;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 0 0 12px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-subtitle {
+            font-size: 20px;
+            color: #e0e7ff;
+            margin: 0;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .mode-selection {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .mode-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin: 0 0 32px 0;
+            text-align: center;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .mode-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 32px 24px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: white;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        }
+
+        .mode-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .mode-name {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 0 0 8px 0;
+        }
+
+        .mode-desc {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .player-setup {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 2px solid #e0e7ff;
+            border-radius: 8px;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e7ff;
+            color: #1e3c72;
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        .btn-secondary:hover {
+            background: #c7d2fe;
+        }
+
+        .game-board {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 12px;
+        }
+
+        .score-item {
+            text-align: center;
+            color: white;
+        }
+
+        .score-label {
+            font-size: 14px;
+            margin: 0 0 8px 0;
+            opacity: 0.9;
+        }
+
+        .score-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .timer-display {
+            text-align: center;
+            color: white;
+        }
+
+        .timer-value {
+            font-size: 42px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .timer-value.warning {
+            color: #fbbf24;
+            animation: pulse 1s infinite;
+        }
+
+        .timer-value.danger {
+            color: #ef4444;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .field-container {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            background: linear-gradient(180deg, #52b788 0%, #74c69d 40%, #95d5b2 100%);
+            border-radius: 16px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            border: 6px solid #2d6a4f;
+        }
+
+        .field-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+
+
+        /* Titik free kick */
+        .free-kick-spot {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+            z-index: 15;
+        }
+
+        /* Garis-garis lapangan */
+
+        /* Dinding manusia (human wall) */
+        .human-wall {
+            position: absolute;
+            top: 38%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 8;
+        }
+
+        .wall-player {
+            width: 28px;
+            height: 55px;
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 6px 6px 2px 2px;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+
+        .wall-player::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 16px;
+            background: #fbbf24;
+            border-radius: 50%;
+        }
+
+        .wall-player::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #7f1d1d;
+        }
+
+        /* Gawang modern */
+        .goal-post {
+            position: absolute;
+            top: 3%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 240px;
+            height: 90px;
+            border: 6px solid #f8f9fa;
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, transparent 100%);
+            box-shadow: 
+                0 6px 20px rgba(0,0,0,0.4),
+                inset 0 2px 4px rgba(255,255,255,0.3);
+            z-index: 1;
+        }
+
+        /* Jaring gawang dengan efek 3D */
+        .goal-net {
+            position: absolute;
+            top: 3%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 240px;
+            height: 90px;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(255,255,255,0.4) 11px, rgba(255,255,255,0.4) 12px),
+                repeating-linear-gradient(90deg, transparent, transparent 11px, rgba(255,255,255,0.4) 11px, rgba(255,255,255,0.4) 12px);
+            opacity: 0.9;
+            border-radius: 12px 12px 0 0;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        /* Penjaga gawang lebih realistis */
+        .goalkeeper {
+            position: absolute;
+            top: 11%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 55px;
+            height: 70px;
+            z-index: 5;
+        }
+
+        .goalkeeper-body {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 42px;
+            background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 6px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .goalkeeper-head {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 22px;
+            height: 22px;
+            background: #d97706;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .goalkeeper-arms {
+            position: absolute;
+            top: 24px;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: #fbbf24;
+            border-radius: 3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .goalkeeper.dive-left {
+            animation: diveLeft 0.7s ease-out;
+        }
+
+        .goalkeeper.dive-right {
+            animation: diveRight 0.7s ease-out;
+        }
+
+        .goalkeeper.dive-stay {
+            animation: jumpUp 0.7s ease-out;
+        }
+
+        @keyframes diveLeft {
+            0% { transform: translateX(-50%) rotate(0deg); }
+            50% { transform: translateX(-120%) rotate(-60deg) translateY(10px); }
+            100% { transform: translateX(-50%) rotate(0deg); }
+        }
+
+        @keyframes diveRight {
+            0% { transform: translateX(-50%) rotate(0deg); }
+            50% { transform: translateX(20%) rotate(60deg) translateY(10px); }
+            100% { transform: translateX(-50%) rotate(0deg); }
+        }
+
+        @keyframes jumpUp {
+            0% { transform: translateX(-50%) translateY(0) scale(1); }
+            50% { transform: translateX(-50%) translateY(-20px) scale(1.1); }
+            100% { transform: translateX(-50%) translateY(0) scale(1); }
+        }
+
+        /* Bola dengan efek lebih baik */
+        .ball {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 35px;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #e5e5e5);
+            border-radius: 50%;
+            box-shadow: 
+                0 6px 12px rgba(0,0,0,0.6),
+                inset -3px -3px 8px rgba(0,0,0,0.3),
+                inset 3px 3px 8px rgba(255,255,255,0.5);
+            z-index: 15;
+            border: 2px solid #1a1a1a;
+        }
+
+        .ball::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: #1a1a1a;
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        }
+
+        .ball::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            border-radius: 50%;
+            background: 
+                linear-gradient(45deg, transparent 45%, #1a1a1a 45%, #1a1a1a 47%, transparent 47%),
+                linear-gradient(-45deg, transparent 45%, #1a1a1a 45%, #1a1a1a 47%, transparent 47%);
+        }
+
+        /* Animasi tendangan sukses - melewati dinding */
+        .ball.kick-success-left {
+            animation: freeKickLeft 1.4s cubic-bezier(0.33, 0, 0.2, 1);
+        }
+
+        .ball.kick-success-right {
+            animation: freeKickRight 1.4s cubic-bezier(0.33, 0, 0.2, 1);
+        }
+
+        .ball.kick-success-center {
+            animation: freeKickCenter 1.4s cubic-bezier(0.33, 0, 0.2, 1);
+        }
+
+        /* Animasi tendangan gagal - menabrak dinding */
+        .ball.kick-fail {
+            animation: hitWall 1s ease-out;
+        }
+
+        @keyframes freeKickLeft {
+            0% { bottom: 20%; left: 50%; transform: translateX(-50%) rotate(0deg) scale(1); }
+            15% { bottom: 28%; left: 48%; transform: translateX(-50%) rotate(-90deg) scale(1); }
+            30% { bottom: 40%; left: 42%; transform: translateX(-50%) rotate(-180deg) scale(0.95); }
+            50% { bottom: 58%; left: 38%; transform: translateX(-50%) rotate(-320deg) scale(0.8); }
+            70% { bottom: 72%; left: 40%; transform: translateX(-50%) rotate(-480deg) scale(0.6); }
+            85% { bottom: 82%; left: 42%; transform: translateX(-50%) rotate(-600deg) scale(0.4); }
+            100% { bottom: 88%; left: 43%; transform: translateX(-50%) rotate(-720deg) scale(0.2); opacity: 0; }
+        }
+
+        @keyframes freeKickRight {
+            0% { bottom: 20%; left: 50%; transform: translateX(-50%) rotate(0deg) scale(1); }
+            15% { bottom: 28%; left: 52%; transform: translateX(-50%) rotate(90deg) scale(1); }
+            30% { bottom: 40%; left: 58%; transform: translateX(-50%) rotate(180deg) scale(0.95); }
+            50% { bottom: 58%; left: 62%; transform: translateX(-50%) rotate(320deg) scale(0.8); }
+            70% { bottom: 72%; left: 60%; transform: translateX(-50%) rotate(480deg) scale(0.6); }
+            85% { bottom: 82%; left: 58%; transform: translateX(-50%) rotate(600deg) scale(0.4); }
+            100% { bottom: 88%; left: 57%; transform: translateX(-50%) rotate(720deg) scale(0.2); opacity: 0; }
+        }
+
+        @keyframes freeKickCenter {
+            0% { bottom: 20%; left: 50%; transform: translateX(-50%) rotate(0deg) scale(1); }
+            15% { bottom: 28%; left: 50%; transform: translateX(-50%) rotate(100deg) scale(1); }
+            30% { bottom: 42%; left: 50%; transform: translateX(-50%) rotate(200deg) scale(0.95); }
+            50% { bottom: 60%; left: 50%; transform: translateX(-50%) rotate(360deg) scale(0.8); }
+            70% { bottom: 74%; left: 50%; transform: translateX(-50%) rotate(520deg) scale(0.6); }
+            85% { bottom: 84%; left: 50%; transform: translateX(-50%) rotate(640deg) scale(0.35); }
+            100% { bottom: 90%; left: 50%; transform: translateX(-50%) rotate(720deg) scale(0.15); opacity: 0; }
+        }
+
+        @keyframes hitWall {
+            0% { bottom: 20%; left: 50%; transform: translateX(-50%) rotate(0deg) scale(1); }
+            15% { bottom: 25%; left: 50%; transform: translateX(-50%) rotate(-90deg) scale(1); }
+            30% { bottom: 30%; left: 45%; transform: translateX(-50%) rotate(-180deg) scale(0.95); }
+            50% { bottom: 32%; left: 35%; transform: translateX(-50%) rotate(-320deg) scale(0.85); }
+            70% { bottom: 30%; left: 20%; transform: translateX(-50%) rotate(-480deg) scale(0.65); }
+            85% { bottom: 25%; left: 8%; transform: translateX(-50%) rotate(-600deg) scale(0.45); }
+            100% { bottom: 20%; left: -5%; transform: translateX(-50%) rotate(-720deg) scale(0.2); opacity: 0; }
+        }
+
+        .question-container {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin: 0 0 20px 0;
+        }
+
+        .answers-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            padding: 16px 24px;
+            font-size: 16px;
+            background: white;
+            border: 2px solid #e0e7ff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateX(4px);
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .answer-btn.correct {
+            background: #dcfce7;
+            border-color: #22c55e;
+        }
+
+        .answer-btn.wrong {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        .result-message {
+            text-align: center;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .result-message.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .result-message.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .final-screen {
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .final-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin: 0 0 24px 0;
+        }
+
+        .final-scores {
+            margin: 32px 0;
+        }
+
+        .final-score-item {
+            font-size: 24px;
+            color: #4b5563;
+            margin: 12px 0;
+        }
+
+        .winner-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 16px;
+        }
+
+        .battle-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .player-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .player-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 32px;
+            }
+            
+            .mode-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .battle-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <header class="game-header">
+    <h1 class="game-title" id="gameTitle">Freekick Challenge</h1>
+    <p class="game-subtitle" id="gameSubtitle">Uji pengetahuanmu di sini!</p>
+   </header><!-- Mode Selection Screen -->
+   <div id="modeScreen" class="screen active">
+    <div class="mode-selection">
+     <h2 class="mode-title">Pilih Mode Permainan</h2>
+     <div class="mode-grid"><button class="mode-card" onclick="selectMode('single')">
+       <div class="mode-icon">
+        ⚽
+       </div><h3 class="mode-name">Tunggal</h3><p class="mode-desc">Raih skor tertinggimu!</p></button> <button class="mode-card" onclick="selectMode('competition')">
+       <div class="mode-icon">
+        🔄
+       </div><h3 class="mode-name">Kompetisi</h3><p class="mode-desc">Dua pemain bermain bergantian!</p></button> <button class="mode-card" onclick="selectMode('battle')">
+       <div class="mode-icon">
+        ⚔️
+       </div><h3 class="mode-name">Duel</h3><p class="mode-desc">Dua pemain bermain bersamaan!</p></button>
+     </div><button class="btn btn-secondary" onclick="showQuestionManager()" style="margin-top: 20px;"> ⚙️ Ganti Pertanyaan </button>
+    </div>
+   </div><!-- Player Setup Screen -->
+   <div id="setupScreen" class="screen">
+    <div class="player-setup">
+     <h2 class="mode-title">Pengaturan Pemain</h2>
+     <div id="playerInputs"></div><button class="btn btn-primary" onclick="startGame()">Mulai Permainan</button> <button class="btn btn-secondary" onclick="backToMode()">Kembali</button>
+    </div>
+   </div><!-- Game Screen -->
+   <div id="gameScreen" class="screen">
+    <div class="game-board">
+     <div id="scoreBoard"></div>
+     <div id="gameContent"></div>
+    </div>
+   </div><!-- Final Screen -->
+   <div id="finalScreen" class="screen">
+    <div class="final-screen">
+     <h2 class="final-title">🏆 Permainan Selesai! 🏆</h2>
+     <div id="finalScores" class="final-scores"></div><button class="btn btn-primary" onclick="restartGame()">Main Lagi</button>
+    </div>
+   </div><!-- Question Manager Screen -->
+   <div id="questionManagerScreen" class="screen">
+    <div class="player-setup">
+     <h2 class="mode-title">⚙️ Ganti Pertanyaan</h2>
+     <div class="input-group"><label class="input-label">📝 Cara mengubah pertanyaan:</label>
+      <p style="font-size: 14px; color: #64748b; margin-bottom: 8px;">
+	    <strong>Format:</strong><br>
+	    1. Tuliskan pertanyaan (tanpa diawali nomor soal)<br>
+        2. Tuliskan tiga buah pilihan jawaban (tanpa diawali opsi a, b, c)<br>
+		3. Tandai jawaban yang benar dengan simbol bintang (*) di awal jawaban<br>
+		4. Gunakan baris kosong (enter) untuk memisahkan pertanyaan<br><br>
+		<strong>Contoh:</strong><br>
+        Allah bersifat wujud, artinya....<br>
+        *Allah itu ada<br>
+        Allah itu berbeda dengan makhluk-Nya<br>
+        Allah itu berkuasa<br><br>
+        (Catatan: pertanyaan dan jawaban hanya dapat berupa teks, tidak mendukung gambar/foto, video, dan suara)</p><textarea id="simpleEditor" class="input-field" rows="20" style="font-size: 14px;" placeholder="Apa arti sifat Wujud?
+*Allah itu ada
+Allah itu hidup
+Allah berkuasa
+
+Apa arti sifat Qidam?
+Allah itu mulia
+*Allah itu terdahulu
+Allah itu kekal"></textarea>
+     </div>
+     <div style="display: flex; gap: 12px;"><button class="btn btn-primary" onclick="saveSimpleQuestions()" style="flex: 1;"> 💾 Jadikan Pertanyaan Baru </button> <button class="btn btn-secondary" onclick="resetToDefaultQuestions()" style="flex: 1;"> 🔄 Gunakan Pertanyaan Bawaan </button>
+     </div><button class="btn btn-secondary" onclick="backToModeFromManager()" style="margin-top: 12px;"> ← Kembali ke Halaman Awal </button>
+    </div>
+   </div>
+  </div>
+  <script>
+        const defaultConfig = {
+            game_title: "Freekick Challenge",
+            subtitle: "Uji pengetahuanmu di sini!"
+        };
+
+        const defaultQuestions = [
+            {
+                question: "Apa arti dari sifat wajib 'Wujud' bagi Allah?",
+                answers: ["Allah itu ada", "Allah itu hidup", "Allah itu berkuasa"],
+                correct: 0
+            },
+            {
+                question: "Apa arti dari sifat wajib 'Qidam' bagi Allah?",
+                answers: ["Allah itu mulia", "Allah itu terdahulu", "Allah itu kekal"],
+                correct: 1
+            },
+            {
+                question: "Apa arti dari sifat wajib 'Baqa' bagi Allah?",
+                answers: ["Allah itu berkuasa", "Allah itu kekal", "Allah itu mengetahui"],
+                correct: 1
+            },
+            {
+                question: "Apa arti dari sifat wajib 'Qiyamuhu Binafsihi' bagi Allah?",
+                answers: ["Allah berdiri sendiri", "Allah berkuasa sendiri", "Allah tidak membutuhkan selain-Nya"],
+                correct: 2
+            },
+            {
+                question: "Apa arti dari sifat wajib 'Wahdaniyah' bagi Allah?",
+                answers: ["Allah itu Esa", "Allah itu Satu", "Keduanya benar"],
+                correct: 2
+            },
+            {
+                question: "Apa arti dari sifat wajib 'Qudrah' bagi Allah?",
+                answers: ["Allah berkuasa", "Allah mengetahui", "Allah menghendaki"],
+                correct: 0
+            },
+            {
+                question: "Apa arti dari sifat wajib 'Iradah' bagi Allah?",
+                answers: ["Allah berkehendak", "Allah berkuasa", "Allah hidup"],
+                correct: 0
+            },
+            {
+                question: "Apa arti dari sifat wajib 'Ilmu' bagi Allah?",
+                answers: ["Allah berkuasa", "Allah mengetahui", "Allah menghendaki"],
+                correct: 1
+            },
+            {
+                question: "Apa arti dari sifat wajib 'Hayat' bagi Allah?",
+                answers: ["Allah itu hidup", "Allah itu ada", "Allah itu kekal"],
+                correct: 0
+            },
+            {
+                question: "Apa arti dari sifat wajib 'Sama' bagi Allah?",
+                answers: ["Allah mendengar", "Allah melihat", "Allah berkuasa"],
+                correct: 0
+            },
+            {
+                question: "Apa arti dari sifat wajib 'Bashar' bagi Allah?",
+                answers: ["Allah mendengar", "Allah melihat", "Allah mengetahui"],
+                correct: 1
+            },
+            {
+                question: "Apa arti dari sifat wajib 'Kalam' bagi Allah?",
+                answers: ["Allah berfirman", "Allah mendengar", "Allah melihat"],
+                correct: 0
+            },
+            {
+                question: "Apa lawan dari sifat wajib 'Wujud'?",
+                answers: ["'Adam", "Fana", "Hudus"],
+                correct: 0
+            },
+            {
+                question: "Apa lawan dari sifat wajib 'Qidam'?",
+                answers: ["Fana", "Hudus", "'Adam"],
+                correct: 1
+            },
+            {
+                question: "Apa lawan dari sifat wajib 'Baqa'?",
+                answers: ["Hudus", "Fana", "'Adam"],
+                correct: 1
+            },
+            {
+                question: "Apa lawan dari sifat wajib 'Qudrah'?",
+                answers: ["'Ajz", "Bukm", "Jahl"],
+                correct: 0
+            },
+            {
+                question: "Apa lawan dari sifat wajib 'Iradah'?",
+                answers: ["'Ajz", "Karahah", "Jahl"],
+                correct: 1
+            },
+            {
+                question: "Apa lawan dari sifat wajib 'Ilmu'?",
+                answers: ["'Ajz", "Bukm", "Jahl"],
+                correct: 2
+            },
+            {
+                question: "Apa lawan dari sifat wajib 'Hayat'?",
+                answers: ["Maut", "Fana", "'Adam"],
+                correct: 0
+            },
+            {
+                question: "Apa lawan dari sifat wajib 'Sama'?",
+                answers: ["Shomam", "'Ama", "Bukm"],
+                correct: 0
+            },
+            {
+                question: "Apa lawan dari sifat wajib 'Bashar'?",
+                answers: ["Shomam", "'Ama", "Bukm"],
+                correct: 1
+            },
+            {
+                question: "Apa lawan dari sifat wajib 'Kalam'?",
+                answers: ["Shomam", "'Ama", "Bukm"],
+                correct: 2
+            },
+            {
+                question: "Berapa jumlah sifat wajib bagi Allah?",
+                answers: ["13 sifat", "20 sifat", "25 sifat"],
+                correct: 1
+            },
+            {
+                question: "Sifat wajib Allah yang termasuk dalam Sifat Nafsiyah adalah?",
+                answers: ["Wujud", "Qidam", "Qudrah"],
+                correct: 0
+            },
+            {
+                question: "Berapa jumlah Sifat Salbiyah bagi Allah?",
+                answers: ["4 sifat", "5 sifat", "7 sifat"],
+                correct: 1
+            },
+            {
+                question: "Yang termasuk Sifat Salbiyah adalah?",
+                answers: ["Qidam, Baqa, Mukhalafatuhu lil hawadisi", "Wujud, Qidam, Baqa", "Qudrah, Iradah, Ilmu"],
+                correct: 0
+            },
+            {
+                question: "Apa arti dari sifat 'Mukhalafatuhu lil hawadisi'?",
+                answers: ["Allah berbeda dengan makhluk-Nya", "Allah tidak membutuhkan selain-Nya", "Allah itu Esa"],
+                correct: 0
+            },
+            {
+                question: "Berapa jumlah Sifat Ma'ani bagi Allah?",
+                answers: ["5 sifat", "7 sifat", "8 sifat"],
+                correct: 1
+            },
+            {
+                question: "Yang termasuk Sifat Ma'ani adalah?",
+                answers: ["Qudrah, Iradah, Ilmu, Hayat, Sama', Bashar, Kalam", "Wujud, Qidam, Baqa", "Wahdaniyah, Qiyamuhu Binafsihi"],
+                correct: 0
+            },
+            {
+                question: "Apa arti 'Qaadirun' dari Sifat Ma'nawiyah?",
+                answers: ["Yang Maha Berkuasa", "Yang Maha Mengetahui", "Yang Maha Menghendaki"],
+                correct: 0
+            },
+            {
+                question: "Apa arti 'Muriidum' dari Sifat Ma'nawiyah?",
+                answers: ["Yang Maha Berkuasa", "Yang Maha Menghendaki", "Yang Maha Mengetahui"],
+                correct: 1
+            },
+            {
+                question: "Apa arti ''Aliimun' dari Sifat Ma'nawiyah?",
+                answers: ["Yang Maha Menghendaki", "Yang Maha Berkuasa", "Yang Maha Mengetahui"],
+                correct: 2
+            },
+            {
+                question: "Apa arti 'Hayyun' dari Sifat Ma'nawiyah?",
+                answers: ["Yang Maha Hidup", "Yang Maha Ada", "Yang Maha Kekal"],
+                correct: 0
+            },
+            {
+                question: "Apa arti 'Samii'un' dari Sifat Ma'nawiyah?",
+                answers: ["Yang Maha Mendengar", "Yang Maha Melihat", "Yang Maha Berbicara"],
+                correct: 0
+            },
+            {
+                question: "Apa arti 'Bashiirun' dari Sifat Ma'nawiyah?",
+                answers: ["Yang Maha Mendengar", "Yang Maha Melihat", "Yang Maha Berbicara"],
+                correct: 1
+            },
+            {
+                question: "Apa arti 'Mutakallimun' dari Sifat Ma'nawiyah?",
+                answers: ["Yang Maha Mendengar", "Yang Maha Melihat", "Yang Maha Berbicara"],
+                correct: 2
+            },
+            {
+                question: "Sifat Allah yang artinya 'tidak berbilang' adalah?",
+                answers: ["Wahdaniyah", "Qiyamuhu Binafsihi", "Mukhalafatuhu lil hawadisi"],
+                correct: 0
+            },
+            {
+                question: "Apakah Allah membutuhkan tempat?",
+                answers: ["Ya, Allah membutuhkan tempat", "Tidak, karena sifat Qiyamuhu Binafsihi", "Terkadang membutuhkan"],
+                correct: 1
+            },
+            {
+                question: "Apakah Allah memiliki awal?",
+                answers: ["Ya, Allah memiliki awal", "Tidak, karena sifat Qidam", "Tidak ada yang tahu"],
+                correct: 1
+            },
+            {
+                question: "Apakah Allah akan berakhir?",
+                answers: ["Ya, suatu saat akan berakhir", "Tidak, karena sifat Baqa'", "Mungkin saja"],
+                correct: 1
+            },
+            {
+                question: "Apakah Allah menyerupai makhluk-Nya?",
+                answers: ["Ya, dalam beberapa hal", "Tidak, karena sifat Mukhalafatuhu lil hawadisi", "Kadang-kadang"],
+                correct: 1
+            },
+            {
+                question: "Dalil naqli untuk sifat 'Sama' adalah?",
+                answers: ["Innallaha Samii'un Bashiirun", "Qul Huwallahu Ahad", "Allahu laa ilaaha illa Huwa"],
+                correct: 0
+            },
+            {
+                question: "Dalil naqli untuk sifat 'Wahdaniyah' adalah?",
+                answers: ["Innallaha Samii'un Bashiirun", "Qul Huwallahu Ahad", "Wa ilahukum ilahun wahid"],
+                correct: 2
+            },
+            {
+                question: "Sifat wajib yang menunjukkan Allah tidak lemah adalah?",
+                answers: ["Qudrah", "Iradah", "Hayat"],
+                correct: 0
+            },
+            {
+                question: "Sifat wajib yang menunjukkan Allah tidak terpaksa adalah?",
+                answers: ["Qudrah", "Iradah", "Ilmu"],
+                correct: 1
+            },
+            {
+                question: "Sifat wajib yang menunjukkan Allah tidak bodoh adalah?",
+                answers: ["Qudrah", "Iradah", "Ilmu"],
+                correct: 2
+            },
+            {
+                question: "Apakah Allah dapat dikalahkan?",
+                answers: ["Tidak, karena sifat Qudrah", "Ya, oleh makhluk yang kuat", "Mungkin saja"],
+                correct: 0
+            },
+            {
+                question: "Apakah Allah dipaksa dalam berbuat sesuatu?",
+                answers: ["Terkadang dipaksa", "Tidak, karena sifat Iradah", "Ya, oleh keadaan"],
+                correct: 1
+            },
+            {
+                question: "Apakah Allah tidak mengetahui sesuatu?",
+                answers: ["Ya, ada yang tidak diketahui", "Tidak, karena sifat Ilmu Allah mencakup segala sesuatu", "Hanya mengetahui sebagian"],
+                correct: 1
+            },
+            {
+                question: "Mengapa kita harus mempelajari sifat-sifat Allah?",
+                answers: ["Untuk mengenal Allah dengan benar", "Hanya untuk ujian", "Tidak wajib dipelajari"],
+                correct: 0
+            },
+            {
+                question: "Hukum mempelajari sifat-sifat wajib bagi Allah adalah?",
+                answers: ["Sunnah", "Mubah", "Fardhu 'ain (wajib bagi setiap muslim)"],
+                correct: 2
+            }
+        ];
+
+        let questions = [...defaultQuestions];
+        let customQuestionsLoaded = false;
+
+        let gameState = {
+            mode: '',
+            players: [],
+            currentPlayer: 0,
+            currentQuestion: 0,
+            scores: [],
+            usedQuestions: [],
+            isAnswering: false,
+            timer: null,
+            timeRemaining: 60,
+            battleAnswers: [false, false]
+        };
+
+        function selectMode(mode) {
+            gameState.mode = mode;
+            const setupScreen = document.getElementById('setupScreen');
+            const modeScreen = document.getElementById('modeScreen');
+            const playerInputs = document.getElementById('playerInputs');
+
+            if (mode === 'single') {
+                playerInputs.innerHTML = `
+                    <div class="input-group">
+                        <label class="input-label" for="player1">Nama Pemain</label>
+                        <input type="text" id="player1" class="input-field" placeholder="Masukkan nama Anda" value="Pemain 1">
+                    </div>
+                `;
+            } else {
+                playerInputs.innerHTML = `
+                    <div class="input-group">
+                        <label class="input-label" for="player1">Nama Pemain 1</label>
+                        <input type="text" id="player1" class="input-field" placeholder="Masukkan nama pemain 1" value="Pemain 1">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label" for="player2">Nama Pemain 2</label>
+                        <input type="text" id="player2" class="input-field" placeholder="Masukkan nama pemain 2" value="Pemain 2">
+                    </div>
+                `;
+            }
+
+            modeScreen.classList.remove('active');
+            setupScreen.classList.add('active');
+        }
+
+        function backToMode() {
+            document.getElementById('setupScreen').classList.remove('active');
+            document.getElementById('modeScreen').classList.add('active');
+        }
+
+        function startGame() {
+            const player1Name = document.getElementById('player1').value.trim() || 'Pemain 1';
+            
+            if (gameState.mode === 'single') {
+                gameState.players = [player1Name];
+                gameState.scores = [0];
+            } else {
+                const player2Name = document.getElementById('player2').value.trim() || 'Pemain 2';
+                gameState.players = [player1Name, player2Name];
+                gameState.scores = [0, 0];
+            }
+
+            gameState.currentPlayer = 0;
+            gameState.currentQuestion = 0;
+            gameState.usedQuestions = [];
+            gameState.isAnswering = false;
+
+            document.getElementById('setupScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+
+            if (gameState.mode === 'battle') {
+                renderBattleMode();
+            } else {
+                renderQuestion();
+            }
+        }
+
+        function getRandomQuestion() {
+            if (gameState.usedQuestions.length >= questions.length) {
+                return null;
+            }
+
+            let questionIndex;
+            do {
+                questionIndex = Math.floor(Math.random() * questions.length);
+            } while (gameState.usedQuestions.includes(questionIndex));
+
+            gameState.usedQuestions.push(questionIndex);
+            return questions[questionIndex];
+        }
+
+        function renderScoreBoard() {
+            const scoreBoard = document.getElementById('scoreBoard');
+            
+            if (gameState.mode === 'single') {
+                const minutes = Math.floor(gameState.timeRemaining / 60);
+                const seconds = gameState.timeRemaining % 60;
+                const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                let timerClass = '';
+                
+                if (gameState.timeRemaining <= 10) {
+                    timerClass = 'danger';
+                } else if (gameState.timeRemaining <= 30) {
+                    timerClass = 'warning';
+                }
+                
+                scoreBoard.innerHTML = `
+                    <div class="score-board">
+                        <div class="score-item">
+                            <p class="score-label">${gameState.players[0]}</p>
+                            <p class="score-value">${gameState.scores[0]}</p>
+                        </div>
+                        <div class="timer-display">
+                            <p class="score-label">⏱️ Waktu</p>
+                            <p class="timer-value ${timerClass}">${timeStr}</p>
+                        </div>
+                        <div class="score-item">
+                            <p class="score-label">Pertanyaan</p>
+                            <p class="score-value">${gameState.currentQuestion + 1}/10</p>
+                        </div>
+                    </div>
+                `;
+            } else if (gameState.mode === 'battle') {
+                const minutes = Math.floor(gameState.timeRemaining / 60);
+                const seconds = gameState.timeRemaining % 60;
+                const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                let timerClass = '';
+                
+                if (gameState.timeRemaining <= 10) {
+                    timerClass = 'danger';
+                } else if (gameState.timeRemaining <= 30) {
+                    timerClass = 'warning';
+                }
+                
+                scoreBoard.innerHTML = `
+                    <div class="score-board">
+                        <div class="score-item">
+                            <p class="score-label">${gameState.players[0]}</p>
+                            <p class="score-value">${gameState.scores[0]}</p>
+                        </div>
+                        <div class="timer-display">
+                            <p class="score-label">Waktu</p>
+                            <p class="timer-value ${timerClass}">${timeStr}</p>
+                        </div>
+                        <div class="score-item">
+                            <p class="score-label">${gameState.players[1]}</p>
+                            <p class="score-value">${gameState.scores[1]}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const currentPlayerName = gameState.players[gameState.currentPlayer];
+                const minutes = Math.floor(gameState.timeRemaining / 60);
+                const seconds = gameState.timeRemaining % 60;
+                const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                let timerClass = '';
+                
+                if (gameState.timeRemaining <= 10) {
+                    timerClass = 'danger';
+                } else if (gameState.timeRemaining <= 30) {
+                    timerClass = 'warning';
+                }
+                
+                scoreBoard.innerHTML = `
+                    <div class="score-board">
+                        <div class="score-item">
+                            <p class="score-label">${gameState.players[0]}</p>
+                            <p class="score-value">${gameState.scores[0]}</p>
+                        </div>
+                        <div class="timer-display">
+                            <p class="score-label">Giliran: ${currentPlayerName}</p>
+                            <p class="timer-value ${timerClass}">${timeStr}</p>
+                        </div>
+                        <div class="score-item">
+                            <p class="score-label">${gameState.players[1]}</p>
+                            <p class="score-value">${gameState.scores[1]}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function startQuestionTimer() {
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
+            
+            gameState.timeRemaining = 30;
+            gameState.timer = setInterval(() => {
+                gameState.timeRemaining--;
+                renderScoreBoard();
+                
+                if (gameState.timeRemaining <= 0) {
+                    clearInterval(gameState.timer);
+                    handleQuestionTimeout();
+                }
+            }, 1000);
+        }
+
+        function handleQuestionTimeout() {
+            if (gameState.isAnswering) return;
+            gameState.isAnswering = true;
+            
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(btn => btn.disabled = true);
+            
+            const ball = document.getElementById('ball');
+            if (ball) {
+                ball.classList.add('kick-fail');
+            }
+            
+            setTimeout(() => {
+                showResult(false);
+            }, 900);
+        }
+
+        function renderQuestion() {
+            renderScoreBoard();
+
+            const question = getRandomQuestion();
+            if (!question) {
+                if (gameState.timer) {
+                    clearInterval(gameState.timer);
+                }
+                endGame();
+                return;
+            }
+
+            if (gameState.currentQuestion >= 10) {
+                if (gameState.timer) {
+                    clearInterval(gameState.timer);
+                }
+                endGame();
+                return;
+            }
+
+            if (gameState.mode === 'single' || gameState.mode === 'competition') {
+                startQuestionTimer();
+            }
+
+            const gameContent = document.getElementById('gameContent');
+            gameContent.innerHTML = `
+                <div class="field-container">
+                    <div class="field-lines">
+                        <div class="free-kick-spot"></div>
+                    </div>
+                    <div class="goal-net"></div>
+                    <div class="goal-post"></div>
+                    <div class="goalkeeper" id="goalkeeper">
+                        <div class="goalkeeper-head"></div>
+                        <div class="goalkeeper-arms"></div>
+                        <div class="goalkeeper-body"></div>
+                    </div>
+                    <div class="human-wall">
+                        <div class="wall-player"></div>
+                        <div class="wall-player"></div>
+                        <div class="wall-player"></div>
+                        <div class="wall-player"></div>
+                    </div>
+                    <div class="ball" id="ball"></div>
+                </div>
+                <div class="question-container">
+                    <p class="question-text">${question.question}</p>
+                    <div class="answers-grid">
+                        ${question.answers.map((answer, index) => `
+                            <button class="answer-btn" onclick="answerQuestion(${index}, ${question.correct})">${answer}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function answerQuestion(selected, correct) {
+            if (gameState.isAnswering) return;
+            gameState.isAnswering = true;
+
+            if (gameState.timer && (gameState.mode === 'single' || gameState.mode === 'competition')) {
+                clearInterval(gameState.timer);
+            }
+
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach((btn, index) => {
+                btn.disabled = true;
+                if (index === correct) {
+                    btn.classList.add('correct');
+                } else if (index === selected && selected !== correct) {
+                    btn.classList.add('wrong');
+                }
+            });
+
+            const ball = document.getElementById('ball');
+            const goalkeeper = document.getElementById('goalkeeper');
+            const isCorrect = selected === correct;
+
+            // Animasi penjaga gawang dan bola
+            if (goalkeeper) {
+                const kickDirection = Math.random();
+                let diveDirection, ballAnimation;
+                
+                if (kickDirection < 0.33) {
+                    diveDirection = 'dive-left';
+                    ballAnimation = isCorrect ? 'kick-success-left' : 'kick-fail';
+                } else if (kickDirection < 0.66) {
+                    diveDirection = 'dive-right';
+                    ballAnimation = isCorrect ? 'kick-success-right' : 'kick-fail';
+                } else {
+                    diveDirection = 'dive-stay';
+                    ballAnimation = isCorrect ? 'kick-success-center' : 'kick-fail';
+                }
+                
+                goalkeeper.classList.add(diveDirection);
+                ball.classList.add(ballAnimation);
+                
+                setTimeout(() => {
+                    goalkeeper.classList.remove(diveDirection);
+                }, 700);
+            }
+
+            if (isCorrect) {
+                gameState.scores[gameState.currentPlayer]++;
+            }
+
+            setTimeout(() => {
+                showResult(isCorrect);
+            }, 1200);
+        }
+
+        function showResult(isCorrect) {
+            const gameContent = document.getElementById('gameContent');
+            const resultClass = isCorrect ? 'success' : 'fail';
+            const resultEmoji = isCorrect ? '⚽ GOOOL!' : '❌ Meleset!';
+            const resultText = isCorrect ? 'Jawaban Benar! Bola masuk ke gawang!' : 'Jawaban Salah! Bola meleset dari gawang!';
+
+            gameContent.innerHTML = `
+                <div class="result-message ${resultClass}">
+                    ${resultEmoji}<br>${resultText}
+                </div>
+                <button class="next-btn" onclick="nextQuestion()">Lanjut</button>
+            `;
+        }
+
+        function nextQuestion() {
+            gameState.currentQuestion++;
+            gameState.isAnswering = false;
+
+            if (gameState.mode === 'competition') {
+                gameState.currentPlayer = 1 - gameState.currentPlayer;
+            }
+
+            renderQuestion();
+        }
+
+        function startBattleTimer() {
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
+            
+            gameState.timeRemaining = 60;
+            gameState.timer = setInterval(() => {
+                gameState.timeRemaining--;
+                renderScoreBoard();
+                
+                if (gameState.timeRemaining <= 0) {
+                    clearInterval(gameState.timer);
+                    handleBattleTimeout();
+                }
+            }, 1000);
+        }
+
+        function handleBattleTimeout() {
+            const playerSections = document.querySelectorAll('.player-section');
+            
+            playerSections.forEach((section, playerIndex) => {
+                if (!gameState.battleAnswers[playerIndex]) {
+                    const buttons = section.querySelectorAll('.answer-btn');
+                    buttons.forEach(btn => btn.disabled = true);
+                    
+                    const ball = document.getElementById(`ball${playerIndex + 1}`);
+                    if (ball) {
+                        ball.classList.add('kick-fail');
+                    }
+                }
+            });
+            
+            setTimeout(() => {
+                nextBattleRound();
+            }, 1500);
+        }
+
+        function renderBattleMode() {
+            renderScoreBoard();
+
+            const question1 = getRandomQuestion();
+            const question2 = getRandomQuestion();
+
+            if (!question1 || !question2) {
+                if (gameState.timer) {
+                    clearInterval(gameState.timer);
+                }
+                endGame();
+                return;
+            }
+
+            if (gameState.currentQuestion >= 10) {
+                if (gameState.timer) {
+                    clearInterval(gameState.timer);
+                }
+                endGame();
+                return;
+            }
+
+            const gameContent = document.getElementById('gameContent');
+            gameContent.innerHTML = `
+                <div class="battle-layout">
+                    <div class="player-section">
+                        <h3 class="player-header">${gameState.players[0]}</h3>
+                        <div class="field-container">
+                            <div class="field-lines">
+                                <div class="free-kick-spot"></div>
+                            </div>
+                            <div class="goal-net"></div>
+                            <div class="goal-post"></div>
+                            <div class="goalkeeper" id="goalkeeper1">
+                                <div class="goalkeeper-head"></div>
+                                <div class="goalkeeper-arms"></div>
+                                <div class="goalkeeper-body"></div>
+                            </div>
+                            <div class="human-wall">
+                                <div class="wall-player"></div>
+                                <div class="wall-player"></div>
+                                <div class="wall-player"></div>
+                                <div class="wall-player"></div>
+                            </div>
+                            <div class="ball" id="ball1"></div>
+                        </div>
+                        <div class="question-container">
+                            <p class="question-text">${question1.question}</p>
+                            <div class="answers-grid">
+                                ${question1.answers.map((answer, index) => `
+                                    <button class="answer-btn" onclick="answerBattle(0, ${index}, ${question1.correct})">${answer}</button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="player-section">
+                        <h3 class="player-header">${gameState.players[1]}</h3>
+                        <div class="field-container">
+                            <div class="field-lines">
+                                <div class="free-kick-spot"></div>
+                            </div>
+                            <div class="goal-net"></div>
+                            <div class="goal-post"></div>
+                            <div class="goalkeeper" id="goalkeeper2">
+                                <div class="goalkeeper-head"></div>
+                                <div class="goalkeeper-arms"></div>
+                                <div class="goalkeeper-body"></div>
+                            </div>
+                            <div class="human-wall">
+                                <div class="wall-player"></div>
+                                <div class="wall-player"></div>
+                                <div class="wall-player"></div>
+                                <div class="wall-player"></div>
+                            </div>
+                            <div class="ball" id="ball2"></div>
+                        </div>
+                        <div class="question-container">
+                            <p class="question-text">${question2.question}</p>
+                            <div class="answers-grid">
+                                ${question2.answers.map((answer, index) => `
+                                    <button class="answer-btn" onclick="answerBattle(1, ${index}, ${question2.correct})">${answer}</button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            gameState.battleAnswers = [false, false];
+            startBattleTimer();
+        }
+
+        function answerBattle(playerIndex, selected, correct) {
+            if (gameState.battleAnswers[playerIndex]) return;
+            gameState.battleAnswers[playerIndex] = true;
+
+            const playerSection = document.querySelectorAll('.player-section')[playerIndex];
+            const buttons = playerSection.querySelectorAll('.answer-btn');
+            
+            buttons.forEach((btn, index) => {
+                btn.disabled = true;
+                if (index === correct) {
+                    btn.classList.add('correct');
+                } else if (index === selected && selected !== correct) {
+                    btn.classList.add('wrong');
+                }
+            });
+
+            const ball = document.getElementById(`ball${playerIndex + 1}`);
+            const goalkeeper = document.getElementById(`goalkeeper${playerIndex + 1}`);
+            const isCorrect = selected === correct;
+
+            // Animasi penjaga gawang dan bola free kick
+            if (goalkeeper) {
+                const kickDirection = Math.random();
+                let diveDirection, ballAnimation;
+                
+                if (kickDirection < 0.33) {
+                    diveDirection = 'dive-left';
+                    ballAnimation = isCorrect ? 'kick-success-left' : 'kick-fail';
+                } else if (kickDirection < 0.66) {
+                    diveDirection = 'dive-right';
+                    ballAnimation = isCorrect ? 'kick-success-right' : 'kick-fail';
+                } else {
+                    diveDirection = 'dive-stay';
+                    ballAnimation = isCorrect ? 'kick-success-center' : 'kick-fail';
+                }
+                
+                goalkeeper.classList.add(diveDirection);
+                ball.classList.add(ballAnimation);
+                
+                setTimeout(() => {
+                    goalkeeper.classList.remove(diveDirection);
+                }, 700);
+            }
+
+            if (isCorrect) {
+                gameState.scores[playerIndex]++;
+            }
+
+            if (gameState.battleAnswers[0] && gameState.battleAnswers[1]) {
+                clearInterval(gameState.timer);
+                setTimeout(() => {
+                    nextBattleRound();
+                }, 1500);
+            }
+        }
+
+        function nextBattleRound() {
+            gameState.currentQuestion++;
+            
+            if (gameState.currentQuestion >= 10) {
+                endGame();
+            } else {
+                renderBattleMode();
+            }
+        }
+
+        function endGame() {
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('finalScreen').classList.add('active');
+
+            const finalScores = document.getElementById('finalScores');
+            
+            if (gameState.mode === 'single') {
+                finalScores.innerHTML = `
+                    <p class="final-score-item">Skor Akhir: ${gameState.scores[0]}/10</p>
+                    <p class="final-score-item">Selamat ${gameState.players[0]}! 🎉</p>
+                `;
+            } else {
+                const winner = gameState.scores[0] > gameState.scores[1] ? 0 : 
+                              gameState.scores[1] > gameState.scores[0] ? 1 : -1;
+                
+                finalScores.innerHTML = `
+                    <p class="final-score-item">${gameState.players[0]}: ${gameState.scores[0]} poin</p>
+                    <p class="final-score-item">${gameState.players[1]}: ${gameState.scores[1]} poin</p>
+                    ${winner === -1 ? 
+                        '<p class="winner-badge">🤝 Seri!</p>' :
+                        `<p class="winner-badge">🏆 Pemenang: ${gameState.players[winner]}</p>`
+                    }
+                `;
+            }
+        }
+
+        function restartGame() {
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
+            
+            gameState = {
+                mode: '',
+                players: [],
+                currentPlayer: 0,
+                currentQuestion: 0,
+                scores: [],
+                usedQuestions: [],
+                isAnswering: false,
+                timer: null,
+                timeRemaining: 60,
+                battleAnswers: [false, false]
+            };
+
+            document.getElementById('finalScreen').classList.remove('active');
+            document.getElementById('modeScreen').classList.add('active');
+        }
+
+        function showQuestionManager() {
+            document.getElementById('modeScreen').classList.remove('active');
+            document.getElementById('questionManagerScreen').classList.add('active');
+            
+            const editor = document.getElementById('simpleEditor');
+            editor.value = convertQuestionsToSimpleFormat(questions);
+        }
+
+        function backToModeFromManager() {
+            document.getElementById('questionManagerScreen').classList.remove('active');
+            document.getElementById('modeScreen').classList.add('active');
+        }
+
+        function convertQuestionsToSimpleFormat(questionsArray) {
+            return questionsArray.map(q => {
+                let text = q.question + '\n';
+                q.answers.forEach((answer, index) => {
+                    text += (index === q.correct ? '*' : '') + answer + '\n';
+                });
+                return text;
+            }).join('\n');
+        }
+
+        function parseSimpleFormat(text) {
+            const blocks = text.trim().split(/\n\s*\n/);
+            const parsedQuestions = [];
+            
+            for (const block of blocks) {
+                const lines = block.trim().split('\n').filter(line => line.trim());
+                
+                if (lines.length < 3) {
+                    continue;
+                }
+                
+                const question = lines[0].trim();
+                const answers = [];
+                let correctIndex = -1;
+                
+                for (let i = 1; i < lines.length; i++) {
+                    let line = lines[i].trim();
+                    
+                    if (line.startsWith('*')) {
+                        correctIndex = answers.length;
+                        line = line.substring(1).trim();
+                    }
+                    
+                    if (line) {
+                        answers.push(line);
+                    }
+                }
+                
+                if (question && answers.length >= 2 && correctIndex >= 0) {
+                    parsedQuestions.push({
+                        question: question,
+                        answers: answers,
+                        correct: correctIndex
+                    });
+                }
+            }
+            
+            return parsedQuestions;
+        }
+
+        function saveSimpleQuestions() {
+            const editor = document.getElementById('simpleEditor');
+            const text = editor.value.trim();
+            
+            if (!text) {
+                showNotification('❌ Textarea kosong! Silakan isi pertanyaan.', 'fail');
+                return;
+            }
+            
+            try {
+                const parsedQuestions = parseSimpleFormat(text);
+                
+                if (parsedQuestions.length === 0) {
+                    showNotification('❌ Tidak ada pertanyaan valid! Pastikan format benar:\n- Baris pertama: Pertanyaan\n- Baris berikutnya: Jawaban (tandai benar dengan *)\n- Pisahkan pertanyaan dengan baris kosong', 'fail');
+                    return;
+                }
+                
+                const invalidQuestions = parsedQuestions.filter(q => 
+                    !q.question || 
+                    !Array.isArray(q.answers) || 
+                    q.answers.length < 2 ||
+                    q.correct < 0
+                );
+                
+                if (invalidQuestions.length > 0) {
+                    showNotification('❌ Ada pertanyaan tidak valid! Setiap pertanyaan harus punya minimal 2 jawaban dan 1 jawaban benar (ditandai *).', 'fail');
+                    return;
+                }
+                
+                questions = parsedQuestions;
+                customQuestionsLoaded = true;
+                
+                showNotification(`✅ Berhasil! ${questions.length} pertanyaan siap digunakan.`, 'success');
+                
+                setTimeout(() => {
+                    backToModeFromManager();
+                }, 1500);
+                
+            } catch (error) {
+                showNotification('❌ Terjadi kesalahan! Periksa format penulisan.', 'fail');
+            }
+        }
+
+        function resetToDefaultQuestions() {
+            questions = [...defaultQuestions];
+            customQuestionsLoaded = false;
+            
+            const editor = document.getElementById('simpleEditor');
+            editor.value = convertQuestionsToSimpleFormat(questions);
+            
+            showNotification('✅ Daftar pertanyaan dikembalikan ke format bawaan!', 'success');
+        }
+
+        function showNotification(message, type) {
+            const existingNotif = document.getElementById('notification');
+            if (existingNotif) {
+                existingNotif.remove();
+            }
+            
+            const notif = document.createElement('div');
+            notif.id = 'notification';
+            notif.className = `result-message ${type}`;
+            notif.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 90%; animation: slideDown 0.3s ease-out;';
+            notif.textContent = message;
+            
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.style.animation = 'slideUp 0.3s ease-out';
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
+        }
+
+        async function onConfigChange(config) {
+            const titleElement = document.getElementById('gameTitle');
+            const subtitleElement = document.getElementById('gameSubtitle');
+            
+            titleElement.textContent = config.game_title || defaultConfig.game_title;
+            subtitleElement.textContent = config.subtitle || defaultConfig.subtitle;
+        }
+
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: onConfigChange,
+                mapToCapabilities: (config) => ({
+                    recolorables: [],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (config) => new Map([
+                    ["game_title", config.game_title || defaultConfig.game_title],
+                    ["subtitle", config.subtitle || defaultConfig.subtitle]
+                ])
+            });
+        }
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a3716dae570f928',t:'MTc2Mzk2ODI1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
